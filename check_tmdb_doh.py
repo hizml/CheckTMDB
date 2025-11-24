@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """
-修复版本: 使用本地 DNS 解析 + 多种备用方案
+check_tmdb_doh.py - 使用系统 DNS + Cloudflare DoH 备用
+
+特点：
+- 方法1: 系统 DNS 解析（优先使用）
+- 方法2: Cloudflare DNS-over-HTTPS（备用方案）
+- 双重保障，提高成功率
+- 需要 requests 库
+
+使用方法：
+    pip install requests retry
+    python3 check_tmdb_doh.py
 """
 import requests
 from time import sleep
@@ -96,54 +106,11 @@ def write_host_file(hosts_content: str, filename: str) -> None:
         output_fb.write(hosts_content)
         print(f"\n~最新TMDB {filename} 地址已更新~")
 
-@retry(tries=3)
-def get_domain_ips_method1_dnschecked(domain, record_type, dns_servers):
+def get_domain_ips_method1_socket(domain, record_type):
     """
-    方法1: 使用 dnschecked.com API (原方法)
+    方法1: 使用系统 DNS 解析 (socket.getaddrinfo)
     """
-    all_ips = []
-
-    if not isinstance(dns_servers, list):
-        dns_servers = [dns_servers]
-
-    for dns in dns_servers:
-        print(f"  [方法1] 通过 dnschecked API + DNS {dns} 查询...")
-        url = 'https://api.dnschecked.com/query_dns'
-        headers = {
-            "accept": "application/json, text/plain, */*",
-            "content-type": "application/json",
-            "origin": "https://dnschecked.com",
-            "referer": "https://dnschecked.com/",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        }
-
-        params = {
-            'domain': domain,
-            'record_type': record_type,
-            'dns_server': dns
-        }
-
-        try:
-            response = requests.post(url, headers=headers, json=params, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, dict):
-                    ips_str = data.get("results", [])
-                    if ips_str:
-                        all_ips.extend(ips_str)
-                        print(f"    ✓ 成功获取: {ips_str}")
-        except Exception as e:
-            print(f"    ✗ 失败: {e}")
-
-        time.sleep(0.5)
-
-    return list(set(all_ips))
-
-def get_domain_ips_method2_socket(domain, record_type):
-    """
-    方法2: 使用系统 DNS 解析 (socket.getaddrinfo)
-    """
-    print(f"  [方法2] 使用系统 DNS 解析...")
+    print(f"  [方法1] 使用系统 DNS 解析...")
     ips = []
 
     try:
@@ -164,11 +131,11 @@ def get_domain_ips_method2_socket(domain, record_type):
 
     return ips
 
-def get_domain_ips_method3_cloudflare(domain, record_type):
+def get_domain_ips_method2_cloudflare(domain, record_type):
     """
-    方法3: 使用 Cloudflare DNS-over-HTTPS
+    方法2: 使用 Cloudflare DNS-over-HTTPS
     """
-    print(f"  [方法3] 使用 Cloudflare DoH...")
+    print(f"  [方法2] 使用 Cloudflare DoH...")
     ips = []
 
     try:
@@ -197,33 +164,25 @@ def get_domain_ips_method3_cloudflare(domain, record_type):
 
 def get_domain_ips(domain, record_type, dns_servers=None):
     """
-    综合方法: 依次尝试多种方式获取 IP
+    综合方法: 依次尝试两种方式获取 IP
     """
     print(f"\n正在获取 {domain} 的 {record_type} 记录...")
     
     all_ips = []
     success_method = None
     
-    # 尝试方法1: dnschecked API
-    if dns_servers:
-        ips = get_domain_ips_method1_dnschecked(domain, record_type, dns_servers)
-        if ips:
-            all_ips.extend(ips)
-            success_method = "方法1: dnschecked API"
+    # 尝试方法1: 系统DNS
+    ips = get_domain_ips_method1_socket(domain, record_type)
+    if ips:
+        all_ips.extend(ips)
+        success_method = "方法1: 系统 DNS"
     
-    # 如果方法1失败,尝试方法2: 系统DNS
+    # 如果方法1失败,尝试方法2: Cloudflare DoH
     if not all_ips:
-        ips = get_domain_ips_method2_socket(domain, record_type)
+        ips = get_domain_ips_method2_cloudflare(domain, record_type)
         if ips:
             all_ips.extend(ips)
-            success_method = "方法2: 系统 DNS"
-    
-    # 如果方法2失败,尝试方法3: Cloudflare DoH
-    if not all_ips:
-        ips = get_domain_ips_method3_cloudflare(domain, record_type)
-        if ips:
-            all_ips.extend(ips)
-            success_method = "方法3: Cloudflare DoH"
+            success_method = "方法2: Cloudflare DoH"
     
     # 去重
     all_ips = list(set(all_ips))
@@ -276,10 +235,10 @@ def find_fastest_ip(ips):
     return fastest_ip
 
 def main():
-    print("=== 开始检测 TMDB 相关域名的最快 IP ===\n")
-
-    # 日本DNS服务器
-    japan_dns = ["202.248.37.74", "202.248.20.133"]
+    print("="*60)
+    print("开始检测 TMDB 相关域名的最快 IP")
+    print("方法: 系统 DNS → Cloudflare DoH")
+    print("="*60)
 
     ipv4_results, ipv6_results = [], []
 
@@ -289,7 +248,7 @@ def main():
         print(f"{'='*60}")
 
         # 获取 IPv4
-        ipv4_ips = get_domain_ips(domain, "A", japan_dns)
+        ipv4_ips = get_domain_ips(domain, "A")
         if ipv4_ips:
             fastest_ipv4 = find_fastest_ip(ipv4_ips)
             if fastest_ipv4:
@@ -298,7 +257,7 @@ def main():
                 ipv4_results.append([ipv4_ips[0], domain])
 
         # 获取 IPv6
-        ipv6_ips = get_domain_ips(domain, "AAAA", japan_dns)
+        ipv6_ips = get_domain_ips(domain, "AAAA")
         if ipv6_ips:
             fastest_ipv6 = find_fastest_ip(ipv6_ips)
             if fastest_ipv6:

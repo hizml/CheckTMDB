@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 """
-简化版本：直接使用系统 DNS 解析，不依赖任何第三方 API
-适用于无法访问 dnschecker.org 和 dnschecked.com 的情况
+check_tmdb_dns.py - 使用系统 DNS 解析
+
+特点：
+- 只使用系统 DNS 解析（socket.getaddrinfo）
+- 无需任何外部依赖，只用 Python 标准库
+- 最稳定，不会因第三方 API 失效而无法使用
+- 适合 99% 的使用场景
+
+使用方法：
+    python3 check_tmdb_dns.py
 """
 import socket
 import time

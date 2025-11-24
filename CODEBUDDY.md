@@ -15,14 +15,11 @@ pip install -r requirements.txt
 
 ### 运行脚本
 ```bash
-# 使用 dnschecker.org API 方式(推荐)
-python check_tmdb_github.py
+# 使用系统 DNS 方式（推荐，最稳定）
+python3 check_tmdb_dns.py
 
-# 使用指定 DNS 服务器查询方式
-python check_tmdb_github_dnschecked.py
-
-# 附加 GitHub hosts(添加 -G 参数)
-python check_tmdb_github.py -G
+# 使用系统 DNS + Cloudflare DoH 备用方式（成功率更高）
+python3 check_tmdb_doh.py
 ```
 
 ### 手动测试
@@ -38,15 +35,21 @@ python check_tmdb_github.py
 
 ### 主要文件说明
 
-- **check_tmdb_github.py**: 主脚本,通过 dnschecker.org API 查询域名 IP
-  - 获取 CSRF token 和动态 udp 参数
-  - 支持 IPv4 (A记录) 和 IPv6 (AAAA记录) 查询
-  - 使用 TCP socket 连接测试 IP 延迟
-  - 可选附加 GitHub hosts (-G 参数)
+- **check_tmdb_dns.py**: 系统 DNS 方式（推荐）
+  - 使用 `socket.getaddrinfo()` 进行系统 DNS 查询
+  - 无外部依赖，只使用 Python 标准库
+  - 最稳定可靠，不受第三方 API 影响
+  - 适合大多数使用场景
 
-- **check_tmdb_github_dnschecked.py**: 备用脚本,通过韩国/日本 DNS 服务器查询
-  - 使用 `dns.resolver` 进行 DNS 查询
-  - 逻辑与主脚本基本一致
+- **check_tmdb_doh.py**: 系统 DNS + Cloudflare DoH 备用
+  - 优先使用系统 DNS 解析
+  - 失败时自动切换到 Cloudflare DNS-over-HTTPS
+  - 提高成功率，适合网络环境复杂的情况
+  - 需要 requests 库
+
+- **deprecated/**: 已弃用的脚本
+  - check_tmdb_github.py: 使用 dnschecker.org API（已失效，403错误）
+  - check_tmdb_github_dnschecked.py: 使用 dnschecked.com API（已失效）
 
 - **README_template.md**: README 模板文件
   - 包含占位符: `{ipv4_hosts_str}`, `{ipv6_hosts_str}`, `{update_time}`
@@ -57,17 +60,25 @@ python check_tmdb_github.py
 
 ### 工作流程
 
+**check_tmdb_dns.py (系统 DNS 方式):**
+
 1. **获取域名列表**: 从 `DOMAINS` 常量读取需要查询的域名
-2. **查询 IP 地址**: 
-   - `check_tmdb_github.py`: 调用 dnschecker.org API
-   - `check_tmdb_github_dnschecked.py`: 使用 DNS 解析器
+2. **查询 IP 地址**: 使用 `socket.getaddrinfo()` 进行系统 DNS 查询
 3. **测试延迟**: 使用 `ping_ip()` 通过 TCP 连接测试每个 IP 的延迟
 4. **选择最快 IP**: `find_fastest_ip()` 返回延迟最低的 IP
 5. **生成 hosts 内容**: 格式化为 hosts 文件格式
-6. **更新文件**: 
-   - 对比旧内容,仅在有变化时更新
-   - 更新 `Tmdb_host_ipv4` / `Tmdb_host_ipv6`
-   - 基于模板更新 `README.md`
+6. **更新文件**: 更新 `Tmdb_host_ipv4` / `Tmdb_host_ipv6` 和 `README.md`
+
+**check_tmdb_doh.py (系统 DNS + DoH 备用):**
+
+1. **获取域名列表**: 从 `DOMAINS` 常量读取需要查询的域名
+2. **查询 IP 地址**: 
+   - 方法1: 使用 `socket.getaddrinfo()` 进行系统 DNS 查询
+   - 方法2: 如果方法1失败，使用 Cloudflare DNS-over-HTTPS
+3. **测试延迟**: 使用 `ping_ip()` 通过 TCP 连接测试每个 IP 的延迟
+4. **选择最快 IP**: `find_fastest_ip()` 返回延迟最低的 IP
+5. **生成 hosts 内容**: 格式化为 hosts 文件格式
+6. **更新文件**: 更新 `Tmdb_host_ipv4` / `Tmdb_host_ipv6` 和 `README.md`
 
 ### GitHub Actions 自动化
 
@@ -78,18 +89,12 @@ python check_tmdb_github.py
   1. 检出代码
   2. 设置 Python 3.10 环境
   3. 安装依赖 (`requirements.txt`)
-  4. 运行 `check_tmdb_github_dnschecked.py`
+  4. 运行脚本（建议使用 `check_tmdb_dns.py` 或 `check_tmdb_doh.py`）
   5. 提交并推送更新后的文件 (README.md, Tmdb_host_ipv4, Tmdb_host_ipv6)
 
+**注意**: 原 workflow 使用的 `check_tmdb_github_dnschecked.py` 已失效，建议改用 `check_tmdb_dns.py` 或 `check_tmdb_doh.py`
+
 ### 关键配置变量
-
-- **country_code** (`check_tmdb_github.py`): 
-  - 当前设置为 `'jp'` (日本节点)
-  - 控制从哪个国家/地区获取 IP
-
-- **dns_server** (`check_tmdb_github_dnschecked.py`):
-  - 韩国 DNS: `["202.46.34.75", "168.126.63.1"]`
-  - 日本 DNS: `["202.248.37.74", "202.248.20.133"]`
 
 - **DOMAINS**: 需要查询的域名列表
   - TMDB: tmdb.org, api.tmdb.org, themoviedb.org 等
