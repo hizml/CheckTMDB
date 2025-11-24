@@ -200,32 +200,39 @@ def get_domain_ips(domain, record_type, dns_servers=None):
     综合方法: 依次尝试多种方式获取 IP
     """
     print(f"\n正在获取 {domain} 的 {record_type} 记录...")
-
+    
     all_ips = []
-
+    success_method = None
+    
     # 尝试方法1: dnschecked API
     if dns_servers:
         ips = get_domain_ips_method1_dnschecked(domain, record_type, dns_servers)
-        all_ips.extend(ips)
-
+        if ips:
+            all_ips.extend(ips)
+            success_method = "方法1: dnschecked API"
+    
     # 如果方法1失败,尝试方法2: 系统DNS
     if not all_ips:
         ips = get_domain_ips_method2_socket(domain, record_type)
-        all_ips.extend(ips)
-
+        if ips:
+            all_ips.extend(ips)
+            success_method = "方法2: 系统 DNS"
+    
     # 如果方法2失败,尝试方法3: Cloudflare DoH
     if not all_ips:
         ips = get_domain_ips_method3_cloudflare(domain, record_type)
-        all_ips.extend(ips)
-
+        if ips:
+            all_ips.extend(ips)
+            success_method = "方法3: Cloudflare DoH"
+    
     # 去重
     all_ips = list(set(all_ips))
-
+    
     if all_ips:
-        print(f"✓ 最终获取到 {len(all_ips)} 个IP: {all_ips}")
+        print(f"✓ 【{success_method}】成功获取到 {len(all_ips)} 个IP: {all_ips}")
     else:
         print(f"✗ 所有方法均失败，未获取到IP")
-
+    
     return all_ips
 
 def ping_ip(ip, port=80):
