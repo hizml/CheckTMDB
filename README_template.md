@@ -1,3 +1,4 @@
+Fork自[CheckTMDB](https://github.com/cnwikee/CheckTMDB)
 # CheckTMDB
 
 每日自动更新TMDB，themoviedb、thetvdb 国内可正常连接IP，解决DNS污染，供tinyMediaManager(TMM削刮器)、Kodi的刮削器、群晖VideoStation的海报墙、Plex Server的元数据代理、Emby Server元数据下载器、Infuse、Nplayer等正常削刮影片信息。
