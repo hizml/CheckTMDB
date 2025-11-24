@@ -11,26 +11,26 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
-        
+
     - name: Install dependencies
       run: |
         sudo apt update
         sudo apt install --only-upgrade python3-pip
         if [ -f requirements.txt ]; then sudo pip install -r requirements.txt; fi
-        
+
     - name: Run Python script
       run: |
-        sudo python check_tmdb_github_dnschecked.py
-        
+        sudo python check_tmdb_github.py
+
     - name: 提交更改
       run: |
          git config --global user.name 'GitHub Action'
