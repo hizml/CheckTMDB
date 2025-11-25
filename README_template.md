@@ -1,26 +1,53 @@
-Fork自[CheckTMDB](https://github.com/cnwikee/CheckTMDB)
 # CheckTMDB
 
-每日自动更新TMDB，themoviedb、thetvdb 国内可正常连接IP，解决DNS污染，供tinyMediaManager(TMM削刮器)、Kodi的刮削器、群晖VideoStation的海报墙、Plex Server的元数据代理、Emby Server元数据下载器、Infuse、Nplayer等正常削刮影片信息。
+每日自动更新TMDB、IMDb、TheTVDB 等影视数据库域名在国内可正常连接的 IP 地址，解决 DNS 污染问题，为 tinyMediaManager、Plex、Emby、Jellyfin 等影视削刮器提供可用的 hosts 配置。
 
-## 一、前景
+## 一、项目概述
 
-自从我早两年使用了黑群NAS以后，下了好多的电影电视剧，发现电视端无法生成正常的海报墙。查找资料得知应该是 themoviedb.org、tmdb.org 无法正常访问，因为DNS受到了污染无法正确解析到TMDB的IP，故依葫芦画瓢写了一个python脚本，每日定时通过[dnschecker](https://dnschecker.org/)查询出最佳IP，并自动同步到路由器外挂hosts，可正常削刮。
+CheckTMDB 自动检测和更新 TMDB、IMDb、TheTVDB 等影视数据库域名的最佳 IP 地址。主要解决 DNS 污染导致的访问问题，确保各种影视削刮器能够正常获取影片信息和海报数据。
 
-**本项目无需安装任何程序**
+**本项目无需安装任何程序**，通过修改本地或路由器的 hosts 文件即可使用。
 
-通过修改本地、路由器 hosts 文件，即可正常削刮影片信息。
+### 核心特性
 
-## 文件地址
+- **多种解析方式**: 支持系统 DNS 解析和 Cloudflare DoH 备用解析
+- **延迟测试**: 自动测试每个 IP 的连接延迟，选择最快的地址
+- **自动化更新**: 通过 GitHub Actions 每日自动更新
+- **多域名支持**: 涵盖 TMDB、IMDb、TheTVDB 等主流影视数据库
+- **IPv4/IPv6 双栈**: 同时提供 IPv4 和 IPv6 地址支持
+
+## 二、获取 hosts 文件
+
+### 2.1 直接下载地址
 
 - TMDB IPv4 hosts：`https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv4` ，[链接](https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv4)
 - TMDB IPv6 hosts：`https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv6` ，[链接](https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv6)
 
-## 二、使用方法
+### 2.2 脚本说明
 
-### 2.1 手动方式
+项目提供两种主要的检测脚本：
 
-#### 2.1.1 IPv4地址复制下面的内容
+1. **check_tmdb_dns.py**（推荐）
+   - 使用系统 DNS 解析
+   - 无需外部依赖，仅使用 Python 标准库
+   - 最稳定可靠，适合大多数使用场景
+
+2. **check_tmdb_doh.py**（备用方案）
+   - 优先使用系统 DNS，失败时自动切换 Cloudflare DoH
+   - 需要 requests 库
+   - 适合网络环境复杂的情况
+
+3. **deprecated/**（已弃用）
+   - 包含旧的 API 方式脚本，已失效不建议使用
+
+- TMDB IPv4 hosts：`https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv4` ，[链接](https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv4)
+- TMDB IPv6 hosts：`https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv6` ，[链接](https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv6)
+
+## 三、使用方法
+
+### 3.1 手动方式
+
+#### 3.1.1 IPv4地址复制下面的内容
 
 ```bash
 {ipv4_hosts_str}
@@ -28,7 +55,7 @@ Fork自[CheckTMDB](https://github.com/cnwikee/CheckTMDB)
 
 该内容会自动定时更新， 数据更新时间：{update_time}
 
-#### 2.1.2 IPv6地址复制下面的内容
+#### 3.1.2 IPv6地址复制下面的内容
 
 ```bash
 {ipv6_hosts_str}
@@ -39,7 +66,7 @@ Fork自[CheckTMDB](https://github.com/cnwikee/CheckTMDB)
 > [!NOTE]
 > 由于项目搭建在Github Aciton，延时数据获取于Github Action 虚拟主机网络环境，请自行测试可用性，建议使用本地网络环境自动设置。
 
-#### 2.1.3 修改 hosts 文件
+#### 3.1.3 修改 hosts 文件
 
 hosts 文件在每个系统的位置不一，详情如下：
 
@@ -55,7 +82,7 @@ hosts 文件在每个系统的位置不一，详情如下：
 2. Linux、Mac 使用 Root 权限：`sudo vi /etc/hosts`。
 3. iPhone、iPad 须越狱、Android 必须要 root。
 
-#### 2.1.4 激活生效
+#### 3.1.4 激活生效
 
 大部分情况下是直接生效，如未生效可尝试下面的办法，刷新 DNS：
 
@@ -67,13 +94,13 @@ hosts 文件在每个系统的位置不一，详情如下：
 
 **Tips：** 上述方法无效可以尝试重启机器。
 
-### 2.2 自动方式
+### 3.2 自动方式
 
-#### 2.2.1 安装 SwitchHosts
+#### 3.2.1 安装 SwitchHosts
 
 GitHub 发行版：https://github.com/oldj/SwitchHosts/releases/latest
 
-#### 2.2.2 添加 hosts
+#### 3.2.2 添加 hosts
 
 点击左上角“+”，并进行以下配置：
 
@@ -84,17 +111,112 @@ GitHub 发行版：https://github.com/oldj/SwitchHosts/releases/latest
     - IPv6：`https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv6`
 - 自动刷新：`1 小时`
 
-#### 2.2.3 启用 hosts
+#### 3.2.3 启用 hosts
 
 在左侧边栏启用 hosts，首次使用时软件会自动获取内容。如果无法连接到 GitHub，可以尝试用同样的方法添加 [GitHub520](https://github.com/521xueweihan/GitHub520) hosts。
 
-## 三、参数说明
+## 四、脚本使用说明
 
-1. 直接执行`check_tmdb_github.py`脚本，同时查询IPv4及IPv6地址，目录生成`Tmdb_host_ipv4`文件，及`Tmdb_host_ipv6`文件；
-2. 带`-G` 参数执行：`check_tmdb_github.py -G`，会在`Tmdb_host_ipv4`文件，及`Tmdb_host_ipv6`文件中追加 Github IPv4 地址；
+### 4.1 本地运行
 
-## 其他
+**推荐方式 - check_tmdb_dns.py（无需依赖）**
+```bash
+python3 check_tmdb_dns.py
+```
 
-- [x] 自学薄弱编程基础，大部分代码基于AI辅助生成，此项目过程中，主要人为解决的是：通过 [dnschecker](https://dnschecker.org/) 提交时，通过计算出正确的udp参数，获取正确的csrftoken，携带正确的referer提交！
-- [x] README.md 及 部分代码 参考[GitHub520](https://github.com/521xueweihan/GitHub520)
-- [x] * 本项目仅在本机测试通过，如有问题欢迎提 [issues](https://github.com/hizml/CheckTMDB/issues/new)
+**备用方式 - check_tmdb_doh.py（需要安装依赖）**
+```bash
+# 安装依赖
+pip install -r requirements.txt
+
+# 运行脚本
+python3 check_tmdb_doh.py
+```
+
+### 4.2 支持的域名列表
+
+脚本会自动检测以下域名的最佳 IP：
+
+**TMDB 相关**：
+- tmdb.org
+- api.tmdb.org
+- files.tmdb.org
+- themoviedb.org
+- api.themoviedb.org
+- www.themoviedb.org
+- auth.themoviedb.org
+- image.tmdb.org
+- images.tmdb.org
+
+**IMDb 相关**：
+- imdb.com
+- www.imdb.com
+- secure.imdb.com
+- s.media-imdb.com
+- us.dd.imdb.com
+- www.imdb.to
+- origin-www.imdb.com
+- ia.media-imdb.com
+
+**TheTVDB 相关**：
+- thetvdb.com
+- api.thetvdb.com
+
+**Amazon 相关**：
+- f.media-amazon.com
+- imdb-video.media-imdb.com
+
+### 4.3 自动化部署
+
+项目使用 GitHub Actions 进行自动化更新，每天 10:00 和 22:00 (UTC+8) 自动执行更新。如需修改更新频率，可编辑 `.github/workflows/main.yml` 文件中的 cron 表达式。
+
+## 五、常见问题
+
+### 5.1 如何验证 hosts 是否生效？
+
+可以通过以下命令验证：
+```bash
+# Windows
+ping tmdb.org
+
+# Linux/Mac
+ping -c 4 tmdb.org
+```
+
+如果返回的 IP 地址与 hosts 文件中的地址一致，说明配置已生效。
+
+### 5.2 更新后仍然无法访问？
+
+可能的原因及解决方案：
+1. **DNS 缓存**：尝试清除 DNS 缓存（见激活生效部分）
+2. **浏览器缓存**：清除浏览器缓存或使用无痕模式
+3. **防火墙/安全软件**：检查是否被防火墙或安全软件拦截
+4. **代理设置**：检查系统代理设置是否影响 hosts 生效
+
+### 5.3 如何回退到原始状态？
+
+删除 hosts 文件中添加的相关内容即可，或恢复原始 hosts 文件。
+
+## 六、项目贡献
+
+### 6.1 技术实现
+
+- **DNS 解析**: 使用 Python 标准库 `socket.getaddrinfo` 进行系统 DNS 解析
+- **DoH 备用**: Cloudflare DNS-over-HTTPS 作为备用解析方案
+- **延迟测试**: TCP 连接测试选择最优 IP
+- **自动化**: GitHub Actions 定时执行更新
+
+### 6.2 致谢
+
+- [x] Fork 自 [CheckTMDB](https://github.com/cnwikee/CheckTMDB)，感谢原作者 [cnwikee](https://github.com/cnwikee) 的贡献
+- [x] README 格式参考 [GitHub520](https://github.com/521xueweihan/GitHub520) 项目
+- [x] 使用 Cloudflare DNS-over-HTTPS API 作为备用解析方案
+- [x] 本项目已在本机及 GitHub Actions 环境测试通过
+
+### 6.3 问题反馈
+
+如有问题欢迎提 [issues](https://github.com/hizml/CheckTMDB/issues/new) 或提交 pull request。
+
+### 6.4 免责声明
+
+本项目仅供学习和研究使用，请遵守相关法律法规。使用本项目产生的任何后果由使用者自行承担。
