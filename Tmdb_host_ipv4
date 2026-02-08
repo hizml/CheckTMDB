@@ -1,26 +1,26 @@
 # Tmdb Hosts Start
-18.160.10.119               tmdb.org
-3.170.19.97                 api.tmdb.org
-3.170.42.44                 files.tmdb.org
-3.171.38.90                 themoviedb.org
-3.170.19.104                api.themoviedb.org
-3.171.38.90                 www.themoviedb.org
-3.170.3.32                  auth.themoviedb.org
-143.244.60.196              image.tmdb.org
-143.244.60.196              images.tmdb.org
+18.160.10.93                tmdb.org
+3.170.19.19                 api.tmdb.org
+3.170.42.109                files.tmdb.org
+3.171.38.81                 themoviedb.org
+3.170.19.106                api.themoviedb.org
+108.159.227.27              www.themoviedb.org
+3.170.3.114                 auth.themoviedb.org
+185.93.1.249                image.tmdb.org
+185.93.1.246                images.tmdb.org
 44.215.137.99               imdb.com
-13.35.89.191                www.imdb.com
+18.67.70.32                 www.imdb.com
 98.82.155.134               secure.imdb.com
 18.67.70.32                 s.media-imdb.com
 44.215.137.99               us.dd.imdb.com
 18.67.70.32                 www.imdb.to
-44.215.137.99               origin-www.imdb.com
-23.46.15.8                  ia.media-imdb.com
+98.82.158.179               origin-www.imdb.com
+18.154.229.157              ia.media-imdb.com
 3.171.75.86                 thetvdb.com
 3.170.35.80                 api.thetvdb.com
-146.75.29.16                f.media-amazon.com
-18.67.76.79                 imdb-video.media-imdb.com
-# Update time: 2026-02-08T18:16:45+08:00
+199.232.153.16              f.media-amazon.com
+18.67.76.14                 imdb-video.media-imdb.com
+# Update time: 2026-02-09T06:16:17+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/hizml/CheckTMDB
