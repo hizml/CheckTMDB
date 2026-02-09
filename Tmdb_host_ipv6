@@ -1,20 +1,20 @@
 # Tmdb Hosts Start
-2600:9000:2466:f600:10:db24:6940:93a1              tmdb.org
-2600:9000:2464:7600:10:fb02:4000:93a1              api.tmdb.org
-2600:9000:2027:de00:5:da10:7440:93a1               files.tmdb.org
-2600:9000:2027:ac00:e:5373:440:93a1                themoviedb.org
-2600:9000:2464:ca00:c:174a:c400:93a1               api.themoviedb.org
-2600:9000:2027:4800:e:5373:440:93a1                www.themoviedb.org
-2600:9000:2356:2800:16:e4a1:eb00:93a1              auth.themoviedb.org
-2400:52e0:1a00::1348:1                             image.tmdb.org
-2400:52e0:1a00::1348:1                             images.tmdb.org
+2600:9000:2199:2e00:10:db24:6940:93a1              tmdb.org
+2600:9000:27e0:400:10:fb02:4000:93a1               api.tmdb.org
+2600:9000:27e0:2a00:5:da10:7440:93a1               files.tmdb.org
+2600:9000:2199:a600:e:5373:440:93a1                themoviedb.org
+2600:9000:2864:4200:c:174a:c400:93a1               api.themoviedb.org
+2600:9000:2199:d600:e:5373:440:93a1                www.themoviedb.org
+2600:9000:24db:1600:16:e4a1:eb00:93a1              auth.themoviedb.org
+2400:52e0:1a01::986:1                              image.tmdb.org
+2400:52e0:1a01::986:1                              images.tmdb.org
 d2bytcopxu066p.cloudfront.net.                     www.imdb.com
 tp.391b988c0-frontier.imdb.com.                    s.media-imdb.com
-d2bytcopxu066p.cloudfront.net.                     www.imdb.to
-2a04:4e42:8a::272                                  ia.media-imdb.com
-2a04:4e42:8a::272                                  f.media-amazon.com
+www.imdb.com.                                      www.imdb.to
+2600:9000:211d:7200:1d:d7f6:39d5:bd01              ia.media-imdb.com
+2a04:4e42:87::272                                  f.media-amazon.com
 d22ohr3ltkx6p.cloudfront.net.                      imdb-video.media-imdb.com
-# Update time: 2026-02-09T18:47:13+08:00
+# Update time: 2026-02-10T06:26:52+08:00
 # IPv4 Update url: https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv4
 # IPv6 Update url: https://raw.githubusercontent.com/hizml/CheckTMDB/refs/heads/main/Tmdb_host_ipv6
 # Star me: https://github.com/hizml/CheckTMDB
